@@ -1,0 +1,37 @@
+{
+  "kind": "singleType",
+  "collectionName": "abouts",
+  "info": {
+    "singularName": "about",
+    "pluralName": "abouts",
+    "displayName": "About",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "staffMembers": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::staff-member.staff-member"
+    },
+    "team": {
+      "type": "component",
+      "repeatable": false,
+      "component": "about.our-team"
+    },
+    "support": {
+      "type": "component",
+      "repeatable": false,
+      "component": "about.support-us"
+    }
+  }
+}
