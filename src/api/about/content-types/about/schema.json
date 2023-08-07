@@ -4,7 +4,7 @@
   "info": {
     "singularName": "about",
     "pluralName": "abouts",
-    "displayName": "About",
+    "displayName": "about",
     "description": ""
   },
   "options": {
@@ -23,15 +23,45 @@
       "relation": "oneToMany",
       "target": "api::staff-member.staff-member"
     },
-    "team": {
-      "type": "component",
-      "repeatable": false,
-      "component": "about.our-team"
+    "teamHeading": {
+      "type": "string"
     },
-    "support": {
-      "type": "component",
-      "repeatable": false,
-      "component": "about.support-us"
+    "supportHeading": {
+      "type": "string"
+    },
+    "supportDescription": {
+      "type": "richtext"
+    },
+    "paypalProfileUrl": {
+      "type": "string"
+    },
+    "eTransferAddress": {
+      "type": "email"
+    },
+    "ctaText": {
+      "type": "string"
+    },
+    "teamImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "imageCollage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
     }
   }
 }
