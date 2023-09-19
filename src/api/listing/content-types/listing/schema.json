@@ -1,0 +1,24 @@
+{
+  "kind": "singleType",
+  "collectionName": "listings",
+  "info": {
+    "singularName": "listing",
+    "pluralName": "listings",
+    "displayName": "Listing",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Heading": {
+      "type": "string"
+    },
+    "recurringGig": {
+      "type": "component",
+      "repeatable": true,
+      "component": "gig.recurring-gig"
+    }
+  }
+}

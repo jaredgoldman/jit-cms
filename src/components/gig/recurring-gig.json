@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_gig_recurring_gigs",
+  "info": {
+    "displayName": "RecurringGig"
+  },
+  "options": {},
+  "attributes": {
+    "day": {
+      "type": "enumeration",
+      "enum": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    "artist": {
+      "type": "string"
+    },
+    "time": {
+      "type": "time"
+    },
+    "description": {
+      "type": "richtext"
+    }
+  }
+}
