@@ -16,16 +16,20 @@
         "Friday",
         "Saturday",
         "Sunday"
-      ]
+      ],
+      "required": true
     },
     "artist": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "time": {
-      "type": "time"
+      "type": "time",
+      "required": true
     },
     "description": {
-      "type": "richtext"
+      "type": "richtext",
+      "required": true
     },
     "image": {
       "type": "media",
@@ -39,7 +43,8 @@
       ]
     },
     "venue": {
-      "type": "string"
+      "type": "string",
+      "required": true
     }
   }
 }
