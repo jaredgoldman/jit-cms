@@ -7,7 +7,7 @@ module.exports = ({ env }) => ({
     amountLimit: 100,
     apolloServer: {
       tracing: false,
-      inspection: true,
+      introspection: true,
     },
   },
   upload: {
