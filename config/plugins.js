@@ -8,6 +8,7 @@ module.exports = ({ env }) => ({
     apolloServer: {
       tracing: false,
     },
+    inspection: true,
   },
   upload: {
     config: {
