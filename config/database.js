@@ -2,7 +2,7 @@ module.exports = ({ env }) => ({
   connection: {
     client: "postgres",
     connection: {
-      host: env("PGHOST", "strapidb"),
+      host: env("PGHOST", "jitdb"),
       port: env.int("PGPORT", 5432),
       database: env("PGDATABASE", "jazzintoronto"),
       user: env("PGUSER", "jazzintoronto"),
