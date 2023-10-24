@@ -9,7 +9,7 @@ module.exports = ({ env }) => ({
   },
   transfer: {
     token: {
-      salt: env("TRANSFER_TOKEN_SALT"),
+      salt: crypto.randomBytes(16).toString("base64"),
     },
   },
 });
