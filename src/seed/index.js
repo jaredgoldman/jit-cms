@@ -1,21 +1,34 @@
 const path = require("path");
-const { uploadFile, getFilePaths, formatDateToHHmmssSSS } = require("./utils");
+const {
+  uploadFile,
+  getFilePaths,
+  checkDataLoaded,
+  typeToNamespace,
+} = require("./utils");
+const { makeGigs } = require("./data");
 
-/*
- * Pre-seeding logic
+const contentTypes = ["about", "listing", "staff-member"];
+const pluginNamespace = "plugin::upload.file";
+const assetsPath = path.join(process.cwd(), "public", "assets");
+
+/**
+ * Prepares the database by clearing existing data.
+ * @param {object} strapi - The Strapi instance.
  */
-async function prepare(strapi) {
-  const files = await strapi.entityService.findMany("plugin::upload.file", {});
+async function clearDb(strapi) {
+  const files = await strapi.entityService.findMany(pluginNamespace, {});
   for (const file of files) {
-    await strapi.entityService.delete("plugin::upload.file", file.id);
+    await strapi.entityService.delete(pluginNamespace, file.id);
   }
-  await strapi.entityService.deleteMany("api::staff-member.staff-member");
-  await strapi.entityService.deleteMany("api::about.about");
-  await strapi.entityService.deleteMany("api::listing.listing");
+  for (const contentType of contentTypes) {
+    await strapi.entityService.deleteMany(typeToNamespace(contentType));
+  }
 }
 
-/*
- * Add staff membmers
+/**
+ * Adds staff members to the database.
+ * @param {object} strapi - The Strapi instance.
+ * @returns {Promise<object[]>} A promise that resolves to an array of added staff members.
  */
 async function addStaff(strapi) {
   const addedMembers = [];
@@ -28,7 +41,7 @@ async function addStaff(strapi) {
 
   for (const item of staffMembers) {
     addedMembers.push(
-      await strapi.entityService.create("api::staff-member.staff-member", {
+      await strapi.entityService.create(typeToNamespace("staff-member"), {
         data: item,
       })
     );
@@ -37,11 +50,11 @@ async function addStaff(strapi) {
   return addedMembers;
 }
 
-/*
- * Add all photos in public/assets folder
+/**
+ * Adds photos from the public/assets folder.
+ * @returns {Promise<object>} A promise that resolves to an object mapping file names to their IDs.
  */
 async function addPhotos() {
-  const assetsPath = path.join(process.cwd(), "public", "assets");
   const addedPhotos = {};
   const filePaths = await getFilePaths(assetsPath);
   for (const filePath of filePaths) {
@@ -53,11 +66,14 @@ async function addPhotos() {
   return addedPhotos;
 }
 
-/*
- * Add /about page content
+/**
+ * Adds about page content.
+ * @param {object} strapi - The Strapi instance.
+ * @param {object} addedPhotos - Object mapping photo names to IDs.
+ * @param {object[]} addedMembers - Array of added staff member objects.
  */
 async function addAboutContent(strapi, addedPhotos, addedMembers) {
-  await strapi.entityService.create("api::about.about", {
+  await strapi.entityService.create(typeToNamespace("about"), {
     data: {
       heading: "ABOUT US",
       description:
@@ -75,91 +91,42 @@ async function addAboutContent(strapi, addedPhotos, addedMembers) {
     },
   });
 }
-/*
- * Add /listings page content
+
+/**
+ * Adds recurring gigs information.
+ * @param {object} strapi - The Strapi instance.
  */
-
+//TODO: convert to json
 async function addRecurringGigs(strapi, addedPhotos) {
-  const gigs = [
-    {
-      day: "Monday",
-      artist: "Test Artist",
-      time: formatDateToHHmmssSSS(new Date()),
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: addedPhotos.recurring,
-      venue: "Test venue",
-    },
-    {
-      day: "Tuesday",
-      artist: "Test Artist",
-      time: formatDateToHHmmssSSS(new Date()),
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: addedPhotos.recurring,
-      venue: "Test venue",
-    },
-    {
-      day: "Wednesday",
-      artist: "Test Artist",
-      time: formatDateToHHmmssSSS(new Date()),
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: addedPhotos.recurring,
-      venue: "Test venue",
-    },
-    {
-      day: "Thursday",
-      artist: "Test Artist",
-      time: formatDateToHHmmssSSS(new Date()),
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: addedPhotos.recurring,
-      venue: "Test venue",
-    },
-    {
-      day: "Friday",
-      artist: "Test Artist",
-      time: formatDateToHHmmssSSS(new Date()),
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: addedPhotos.recurring,
-      venue: "Test venue",
-    },
-    {
-      day: "Saturday",
-      artist: "Test Artist",
-      time: formatDateToHHmmssSSS(new Date()),
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: addedPhotos.recurring,
-      venue: "Test venue",
-    },
-    {
-      day: "Sunday",
-      artist: "Test Artist",
-      time: formatDateToHHmmssSSS(new Date()),
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      image: addedPhotos.recurring,
-      venue: "Test venue",
-    },
-  ];
-
-  await strapi.entityService.create("api::listing.listing", {
-    data: { Heading: "Recurring Gigs", recurringGig: gigs },
+  await strapi.entityService.create(typeToNamespace("listing"), {
+    data: { Heading: "Recurring Gigs", recurringGig: makeGigs(addedPhotos) },
   });
 }
 
-module.exports = async ({ strapi }) => {
+/*
+ * Main seeding functions. Checks if any data is loaded and if not seed
+ */
+async function main() {
   try {
-    await prepare(strapi);
-    const addedMembers = await addStaff(strapi);
-    const addedPhotos = await addPhotos();
-    await addAboutContent(strapi, addedPhotos, addedMembers);
-    await addRecurringGigs(strapi, addedPhotos);
+    // XXX: you can uncomment to completely clear the db on each strapi boot
+    // await clearDb()
+    const dataLoaded = await checkDataLoaded(strapi, [
+      "about",
+      "listing",
+      "staff-member",
+    ]);
+    if (!dataLoaded) {
+      const addedMembers = await addStaff(strapi);
+      const addedPhotos = await addPhotos();
+      await addAboutContent(strapi, addedPhotos, addedMembers);
+      await addRecurringGigs(strapi, addedPhotos);
+      console.log("Seeding completed!");
+    } else {
+      console.log("Skipping data seed - data already present in db");
+    }
   } catch (error) {
-    console.log("ERROR: ", error);
+    console.log("ERROR: ", error.details);
   }
-  console.log("Seeding completed!");
-};
+}
+
+module.exports = main;
