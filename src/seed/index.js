@@ -1,6 +1,9 @@
 const path = require("path");
-const { uploadFile, getFilePaths } = require("./utils");
+const { uploadFile, getFilePaths, formatDateToHHmmssSSS } = require("./utils");
 
+/*
+ * Pre-seeding logic
+ */
 async function prepare(strapi) {
   const files = await strapi.entityService.findMany("plugin::upload.file", {});
   for (const file of files) {
@@ -8,8 +11,12 @@ async function prepare(strapi) {
   }
   await strapi.entityService.deleteMany("api::staff-member.staff-member");
   await strapi.entityService.deleteMany("api::about.about");
+  await strapi.entityService.deleteMany("api::listing.listing");
 }
 
+/*
+ * Add staff membmers
+ */
 async function addStaff(strapi) {
   const addedMembers = [];
   const staffMembers = [
@@ -30,16 +37,25 @@ async function addStaff(strapi) {
   return addedMembers;
 }
 
+/*
+ * Add all photos in public/assets folder
+ */
 async function addPhotos() {
   const assetsPath = path.join(process.cwd(), "public", "assets");
-  const addedPhotos = [];
+  const addedPhotos = {};
   const filePaths = await getFilePaths(assetsPath);
-  for (const path of filePaths) {
-    const uploadedFileId = await uploadFile(path, "title");
-    addedPhotos.push(uploadedFileId);
+  for (const filePath of filePaths) {
+    const pathParams = filePath.split("/");
+    const fileName = pathParams[pathParams.length - 1].replace(".jpeg", "");
+    const uploadedFileId = await uploadFile(filePath, fileName);
+    addedPhotos[fileName] = uploadedFileId;
   }
+  return addedPhotos;
 }
 
+/*
+ * Add /about page content
+ */
 async function addAboutContent(strapi, addedPhotos, addedMembers) {
   await strapi.entityService.create("api::about.about", {
     data: {
@@ -54,21 +70,96 @@ async function addAboutContent(strapi, addedPhotos, addedMembers) {
       paypalProfileUrl: "paypal.com",
       eTransferAddress: "test@test.com",
       ctaText: "",
-      teamImage: addedPhotos[0],
-      imageCollage: addedPhotos[1],
+      teamImage: addedPhotos.team,
+      imageCollage: addedPhotos.support,
     },
+  });
+}
+/*
+ * Add /listings page content
+ */
+
+async function addRecurringGigs(strapi, addedPhotos) {
+  const gigs = [
+    {
+      day: "Monday",
+      artist: "Test Artist",
+      time: formatDateToHHmmssSSS(new Date()),
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      image: addedPhotos.recurring,
+      venue: "Test venue",
+    },
+    {
+      day: "Tuesday",
+      artist: "Test Artist",
+      time: formatDateToHHmmssSSS(new Date()),
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      image: addedPhotos.recurring,
+      venue: "Test venue",
+    },
+    {
+      day: "Wednesday",
+      artist: "Test Artist",
+      time: formatDateToHHmmssSSS(new Date()),
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      image: addedPhotos.recurring,
+      venue: "Test venue",
+    },
+    {
+      day: "Thursday",
+      artist: "Test Artist",
+      time: formatDateToHHmmssSSS(new Date()),
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      image: addedPhotos.recurring,
+      venue: "Test venue",
+    },
+    {
+      day: "Friday",
+      artist: "Test Artist",
+      time: formatDateToHHmmssSSS(new Date()),
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      image: addedPhotos.recurring,
+      venue: "Test venue",
+    },
+    {
+      day: "Saturday",
+      artist: "Test Artist",
+      time: formatDateToHHmmssSSS(new Date()),
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      image: addedPhotos.recurring,
+      venue: "Test venue",
+    },
+    {
+      day: "Sunday",
+      artist: "Test Artist",
+      time: formatDateToHHmmssSSS(new Date()),
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      image: addedPhotos.recurring,
+      venue: "Test venue",
+    },
+  ];
+
+  await strapi.entityService.create("api::listing.listing", {
+    data: { Heading: "Recurring Gigs", recurringGig: gigs },
   });
 }
 
 module.exports = async ({ strapi }) => {
   try {
-    await prepare();
+    await prepare(strapi);
     const addedMembers = await addStaff(strapi);
-    const addedPhotos = await addPhotos(strapi);
+    const addedPhotos = await addPhotos();
     await addAboutContent(strapi, addedPhotos, addedMembers);
-    // Add about page
+    await addRecurringGigs(strapi, addedPhotos);
   } catch (error) {
-    console.log("ERROR: ", error.details ?? error);
+    console.log("ERROR: ", error);
   }
   console.log("Seeding completed!");
 };
