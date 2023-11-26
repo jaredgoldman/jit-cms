@@ -7,7 +7,7 @@ module.exports = ({ env }) => ({
       database: env("PGDATABASE", "jazzintoronto"),
       user: env("PGUSER", "jazzintoronto"),
       password: env("PGPASSWORD", "password"),
-      ssl: env.bool(true),
+      ssl: env.bool(false),
     },
     pool: { min: 0 },
   },
