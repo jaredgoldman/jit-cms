@@ -2,14 +2,15 @@ module.exports = ({ env }) => ({
   connection: {
     client: "postgres",
     connection: {
-      host: env("PGHOST", "strapidb"),
-      port: env.int("PGPORT", 5433),
-      database: env("PGDATABASE", "jazzintoronto"),
-      user: env("PGUSER", "jazzintoronto"),
-      password: env("PGPASSWORD", "password"),
-      ssl: env.bool(false),
+      host: env("DATABASE_HOST", "strapidb"),
+      port: env.int("DATABASE_PORT", 5433),
+      database: env("DATABASE_NAME", "jazzintoronto"),
+      user: env("DATABASE_USERNAME", "jazzintoronto"),
+      password: env("DATABASE_PASSWORD", "password"),
+      ssl: {
+        rejectUnauthorized: env.bool("DATABASE_SSL_SELF", false), // For self-signed certificates
+      },
     },
-    pool: { min: 0 },
-    debug: true,
+    debug: false,
   },
 });
