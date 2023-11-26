@@ -106,7 +106,7 @@ async function addRecurringGigs(strapi, addedPhotos) {
 /*
  * Main seeding functions. Checks if any data is loaded and if not seed
  */
-async function main() {
+async function main(strapi) {
   try {
     // XXX: you can uncomment to completely clear the db on each strapi boot
     // await clearDb()

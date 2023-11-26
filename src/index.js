@@ -19,7 +19,7 @@ module.exports = {
    */
   async bootstrap({ strapi }) {
     if (process.env.NODE_ENV !== "production") {
-      await seed({ strapi });
+      await seed(strapi);
     }
   },
 };
