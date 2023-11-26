@@ -10,5 +10,6 @@ module.exports = ({ env }) => ({
       ssl: env.bool(false),
     },
     pool: { min: 0 },
+    debug: true,
   },
 });
