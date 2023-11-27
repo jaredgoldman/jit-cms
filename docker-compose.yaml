@@ -5,10 +5,13 @@ services:
     restart: always
     command: postgres -p 5433
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - strapi-data:/var/lib/postgresql/data/
     environment:
       POSTGRES_USER: jazzintoronto
       POSTGRES_PASSWORD: password
       POSTGRES_DB: jazzintoronto
     ports:
       - 5433:5433
+
+volumes:
+  strapi-data:
