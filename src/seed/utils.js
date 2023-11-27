@@ -82,15 +82,14 @@ async function maybeSeedData(strapi, namespace, data) {
  * @returns {Promise<boolean>} A promise that resolves to true if all data is loaded, false otherwise.
  */
 async function checkDataLoaded(strapi, contentTypes) {
-  let dataLoaded = false;
-
+  const dataLoaded = [];
   for (const type of contentTypes) {
     const data = await strapi.entityService.findMany(typeToNamespace(type));
     if (data) {
-      dataLoaded = true;
+      dataLoaded.push(type);
     }
   }
-  return dataLoaded;
+  return dataLoaded.length === contentTypes.length ? true : false;
 }
 
 /**
